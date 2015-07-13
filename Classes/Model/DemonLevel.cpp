@@ -91,6 +91,7 @@ DemonLevel* DemonLevel::create(const string &strName)
 
 bool DemonLevel::initWithFile(const string &strName)
 {
+    this->setContentSize(Size(__DEFAULT_WINWIDTH,__DEFAULT_WINHEIGHT));
     setZeroPoint();
     if(loadJson(strName) == false) return false;//读取后m_doc即被赋值了
     initTileMatrix();//读取地图
@@ -234,17 +235,18 @@ void DemonLevel::dropFruit(DemonFruit *fruit)
 
 void DemonLevel::setZeroPoint()
 {
-    Size winSize = Director::getInstance()->getWinSize();
+    Size size = this->getContentSize();
+    CCLOG("m_level.size = %f,%f",size.width,size.height);
     //初始化左下角的点的坐标和果实图片大小,这里创建的果实不addChild
     DemonFruit* fruit = DemonFruit::create(1, 1, 1);
     Rect fruitRect = fruit->boundingBox();
     m_fruitSize = fruitRect.size;
     //果实和空隙总共的宽
-    float wid = __FRUIT_MATRIX_WIDTH * m_fruitSize.width + (__FRUIT_MATRIX_WIDTH -1 ) * __FRUIT_GAP;
+    float wid = __FRUIT_MATRIX_WIDTH * (size.width*0.085) + (__FRUIT_MATRIX_WIDTH -1 ) * (size.width*0.008);//按比例！！
     //左下角的点的横坐标为左边间隙+图片宽度的一半
-    m_leftBottomPosX = (winSize.width - wid)/2 + m_fruitSize.width/2;
+    m_leftBottomPosX = (size.width - wid)/2 + size.width*0.085*0.5;
     //左下角点的纵坐标可以自己设置
-    m_leftBottomPosY = winSize.height*0.15;
+    m_leftBottomPosY = size.height*0.15;
 }
 
 Point DemonLevel::getPosOfItem(int row, int col)
@@ -569,10 +571,17 @@ void DemonLevel::fillTop()
 {
     for (int col = 0; col < __FRUIT_MATRIX_WIDTH; col++)
     {
+        int beginRow = 0;//记录本例从下向上看，第一个为空的果实
+        int i = 0;
         for (int row = 0; row < __FRUIT_MATRIX_HEIGHT; row++)
         {
             if (m_tileMatrix[row][col] != nullptr && m_fruitMatrix[row][col] == nullptr)
             {
+                if (i == 0)
+                {
+                    beginRow = row;
+                }
+                i++;
                 vector<int> vecTmp = GameManager::getInstance()->getusedFruitsNo();//选择使用的果实编号向量
                 size_t length = vecTmp.size();
                 //取一个随机位置的元素值
@@ -583,11 +592,11 @@ void DemonLevel::fillTop()
                 m_iMatrix[row][col] = fruitType;
                 this->addChild(fruit);
                 m_fallFruits.pushBack(fruit);
-                
-                Size size = Director::getInstance()->getWinSize();
+                int diffRow = __FRUIT_MATRIX_HEIGHT - beginRow;//第一个为空的果实到最上方果实的上一个空的行数
+                Point beginPos = getPosOfItem(fruit->getRow() + diffRow, fruit->getCol());//起始坐标，往上平移diffRow
                 Point endPos = getPosOfItem(fruit->getRow(),fruit->getCol());//最终坐标
-                Point beginPos = Point(endPos.x, endPos.y + size.height / 2);//起始坐标
                 fruit->setPosition(beginPos);
+                fruit->setVisible(false);
                 //动画--PlayLayer中
             }
         }

@@ -40,6 +40,7 @@ public:
     void animateFall();//掉落动画
     void animateExplode();//消除动画
     void animateScore(long score,Point pos);//在给定的坐标上进行得分动画
+    void animateExplodeEffect(int fruitType, Point pos);//根据果实类型和坐标，设置消除特效
     
     void callNDBackSetZOrder(Sprite* sp,int zOrder);//设置z轴顺序
     void callNActionEndRelease(Node* node);//动作结束引用-1

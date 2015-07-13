@@ -53,11 +53,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
     searchPaths.insert(searchPaths.begin(), "DemonFruit");
     searchPaths.insert(searchPaths.begin(), "Scene");
     searchPaths.insert(searchPaths.begin(), "Levels");
+    searchPaths.insert(searchPaths.begin(), "Effects");
+    searchPaths.insert(searchPaths.begin(), "Sounds");
     FileUtils::getInstance()->setSearchPaths(searchPaths);
     
     //加载资源
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonFruit.plist");
-    
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("stars.plist");
     // create a scene. it's an autorelease object
     auto scene = PlayLayer::createScene();
 

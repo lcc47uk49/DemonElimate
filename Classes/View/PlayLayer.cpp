@@ -381,17 +381,19 @@ void PlayLayer::animateFall()
     m_touchEnable = false;
     m_isAnimation = true;
     
-    Size size = Director::getInstance()->getWinSize();
+    Size size = m_level->getContentSize();
     for (auto fruit : m_level->m_fallFruits)//掉落已存在的
     {
         //动画
+        fruit->setVisible(true);
         Point startPos = fruit->getPosition();
         Point endPos = m_level->getPosOfItem(fruit->getRow(), fruit->getCol());
-        float swapDelay = 0.2;//交换动画用时
+        float swapDelay = 0.15;//交换动画用时
         float explodDelay = 0.2;//消除用时
-        float delay = swapDelay+explodDelay;
-        float duration = ((startPos.y - endPos.y)/size.height);
-        fruit->runAction(Sequence::create(DelayTime::create(delay),MoveTo::create(duration, endPos), NULL));
+        float duration = ((startPos.y - endPos.y)/(2.5*startPos.y)+0.05* fruit->getRow());
+        auto easeout = EaseSineIn::create(MoveTo::create(duration, endPos));
+        //        fruit->runAction(Sequence::create(DelayTime::create(delay),MoveTo::create(duration, endPos), NULL));
+        fruit->runAction(Sequence::create(DelayTime::create(swapDelay),easeout, NULL));
     }
     m_level->m_fallFruits.clear();
 }
@@ -406,7 +408,11 @@ void PlayLayer::animateExplode()
         for (; it != chain->m_fruitsChain.end(); it++)
         {
             DemonFruit* fruit = *it;
+            Point pos = fruit->getPosition();
+            int fruitType = fruit->getFruitType();
             fruit->explode();
+            //消除特效根据果实的不同而不同
+            animateExplodeEffect(fruitType,pos);
         }
     }
     m_level->m_removeMatches.clear();
@@ -428,6 +434,27 @@ void PlayLayer::animateScore(long score,Point pos)
     auto seq = Sequence::create(EaseOut::create(spawn,time),call, NULL);
     label->runAction(seq);
     
+}
+
+void PlayLayer::animateExplodeEffect(int fruitType, Point pos)
+{
+    float time = 0.4;
+    // 2. action for circle
+    auto circleSprite = Sprite::create("circle.png");
+    addChild(circleSprite, 10);
+    circleSprite->setPosition(pos);
+    circleSprite->setScale(0);// start size
+    circleSprite->runAction(Sequence::create(ScaleTo::create(time, 1.0),
+                                             CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, circleSprite)),
+                                             NULL));
+    
+    // 3. particle effect
+    auto particleStars = ParticleSystemQuad::create("stars.plist");
+    particleStars->setAutoRemoveOnFinish(true);
+    particleStars->setBlendAdditive(false);
+    particleStars->setPosition(pos);
+    particleStars->setScale(0.3);
+    addChild(particleStars, 20);
 }
 
 #pragma mark - callbacks

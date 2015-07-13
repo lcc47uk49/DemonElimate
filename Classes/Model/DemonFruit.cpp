@@ -90,8 +90,6 @@ void DemonFruit::explode()
                                      ScaleTo::create(time, 0.0),
                                      CallFuncN::create(CC_CALLBACK_1(DemonFruit::actionEndCallBack, this)),
                                      NULL));
-    //消除特效根据果实的不同而不同
-//    Effect::getInstance()->explodeEffect(pos,index);
 }
 
 void DemonFruit::actionEndCallBack(Node* node)
