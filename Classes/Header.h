@@ -17,7 +17,7 @@
 #define __FRUIT_HEIGHT                  (64)//果实的高
 #define __FRUIT_GAP                     (6) //果实间的间隔
 #define __TIME_DIFFERENCE_HINT          (5000)//提示时间间隔
-#define __TIME_DIFFERENCE_BASICSCORE    (2500)//重置BasicScore的时间间隔
+#define __TIME_DIFFERENCE_COMBOS        (1000)//重置combos的时间间隔
 #define TOTAL_SELECTEDFRUIT_NUM         (6)//最多可以选择的恶魔果实的数量
 #define __BASIC_SCORE                   (60)//基本分值60分
 

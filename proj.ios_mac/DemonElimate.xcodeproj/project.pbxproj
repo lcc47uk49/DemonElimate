@@ -69,6 +69,7 @@
 		67D965F11B4BD2390052970A /* GameManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 67D965EF1B4BD2390052970A /* GameManager.cpp */; };
 		67DC75341B538318009E7845 /* Sounds in Resources */ = {isa = PBXBuildFile; fileRef = 67DC75331B538318009E7845 /* Sounds */; };
 		67DC75361B53834C009E7845 /* Effects in Resources */ = {isa = PBXBuildFile; fileRef = 67DC75351B53834C009E7845 /* Effects */; };
+		67E692FD1B54E88700CAA590 /* Tile in Resources */ = {isa = PBXBuildFile; fileRef = 67E692FC1B54E88700CAA590 /* Tile */; };
 		67EA48E71B4CCC67003FA365 /* PlayLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 67EA48E51B4CCC67003FA365 /* PlayLayer.cpp */; };
 		67EA48EC1B4D1CEC003FA365 /* DemonSwap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 67EA48EA1B4D1CEC003FA365 /* DemonSwap.cpp */; };
 		67EA48F11B4D587B003FA365 /* DemonChain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 67EA48EF1B4D587B003FA365 /* DemonChain.cpp */; };
@@ -180,6 +181,7 @@
 		67D965F01B4BD2390052970A /* GameManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameManager.h; sourceTree = "<group>"; };
 		67DC75331B538318009E7845 /* Sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Sounds; sourceTree = "<group>"; };
 		67DC75351B53834C009E7845 /* Effects */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Effects; sourceTree = "<group>"; };
+		67E692FC1B54E88700CAA590 /* Tile */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Tile; sourceTree = "<group>"; };
 		67EA48E51B4CCC67003FA365 /* PlayLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlayLayer.cpp; sourceTree = "<group>"; };
 		67EA48E61B4CCC67003FA365 /* PlayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayLayer.h; sourceTree = "<group>"; };
 		67EA48EA1B4D1CEC003FA365 /* DemonSwap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemonSwap.cpp; sourceTree = "<group>"; };
@@ -311,6 +313,7 @@
 		46880B7519C43A67006E1F66 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				67E692FC1B54E88700CAA590 /* Tile */,
 				67DC75351B53834C009E7845 /* Effects */,
 				67DC75331B538318009E7845 /* Sounds */,
 				678C94CB1B4ABF3400DE3BBB /* Levels */,
@@ -553,6 +556,7 @@
 				5087E77E17EB970100C73F5D /* Default.png in Resources */,
 				521A8E6419F0C34300D177D7 /* Default-667h@2x.png in Resources */,
 				46880B7B19C43A67006E1F66 /* CloseNormal.png in Resources */,
+				67E692FD1B54E88700CAA590 /* Tile in Resources */,
 				50EF629717ECD46A001EB2F8 /* Icon-58.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

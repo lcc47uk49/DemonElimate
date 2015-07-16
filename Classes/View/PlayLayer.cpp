@@ -28,6 +28,9 @@ PlayLayer::PlayLayer()
     m_prevTime = 0;
     m_aftTime = 0;
     m_basicScore = __BASIC_SCORE;
+    m_comboNum = 0;
+    m_elimateFruitType.clear();
+    m_comboLabel = nullptr;
 }
 
 PlayLayer::~PlayLayer()
@@ -35,7 +38,7 @@ PlayLayer::~PlayLayer()
     
 }
 
-#pragma mark - 初始化游戏
+#pragma mark - Init Game
 
 bool PlayLayer::init()
 {
@@ -67,6 +70,11 @@ bool PlayLayer::init()
     m_level->setAnchorPoint(Point(0.5,0));
     this->addChild(m_level,1);
 
+    m_comboLabel = Label::createWithBMFont("font2.fnt", "");
+    m_comboLabel->setScale(1.5);
+    m_level->addChild(m_comboLabel);
+    m_comboLabel->setPosition(m_level->getContentSize().width*0.8,m_level->getContentSize().height*0.7);
+    
     //开始游戏
     m_level->shuffle();
     m_prevTime = GameTools::getInstance()->getCurrentTime();//获取当前时间
@@ -84,7 +92,7 @@ bool PlayLayer::init()
     return true;
 }
 
-#pragma mark - 触摸
+#pragma mark - Touch
 
 bool PlayLayer::onTouchBegan(Touch *touch, Event *unused_event)
 {
@@ -240,6 +248,8 @@ void PlayLayer::onTouchEnded(Touch *touch, Event *unused_event)
     m_prevTime = GameTools::getInstance()->getCurrentTime();
 }
 
+#pragma mark - Game Update
+
 void PlayLayer::update(float dt)
 {
     //check if animationing
@@ -272,26 +282,14 @@ void PlayLayer::update(float dt)
     if (!m_isAnimation)//没有动画了 则进行消除
     {
         m_aftTime = GameTools::getInstance()->getCurrentTime();
+        //获得消除链
         size_t horizonSize = m_level->detectHorizontalMatches();
         size_t verticalSize = m_level->detectVerticalMatches();//放在if中会被短路
         if (horizonSize != 0 || verticalSize != 0)//如果当前有可消除的
         {
-            m_level->removeChians();//获得消除链，更新矩阵
-            //计算分值
-            for (auto chain : m_level->m_removeMatches)//每一组消除组合判断分值
-            {
-                long score = m_level->giveScore(m_basicScore, chain->getSize());
-                //取中间坐标
-                DemonFruit* firstFruit = chain->getFirstFruit();
-                DemonFruit* lastFruit = chain->getLastFruit();
-                
-                Point centerPos = Point(0.5*(firstFruit->getPositionX()+lastFruit->getPositionX()),0.5*(firstFruit->getPositionY()+lastFruit->getPositionY()));
-                
-                animateScore(score,centerPos);//得分动画
-                m_basicScore *= 2;//如果连消，则每次基本分值增加一倍
-            }
-            
-            animateExplode();//消除
+            m_level->removeChians();//根据消除链更新矩阵（在矩阵中将要移除的置为null）
+            calcuteScore();//计算分值
+            animateExplode();//消除并清空消除链
             //消除后清空m_srcFruit和m_dstFruit
             m_srcFruit = nullptr;
             m_dstFruit = nullptr;
@@ -315,6 +313,11 @@ void PlayLayer::update(float dt)
                 m_level->shuffle();//重新生成
             }
         }
+        if (m_aftTime - m_prevTime >= __TIME_DIFFERENCE_COMBOS)//重置combo
+        {
+            m_comboNum = 0;
+            m_comboLabel->setString("");
+        }
         if (m_aftTime - m_prevTime >= __TIME_DIFFERENCE_HINT)//提示
         {
             m_level->giveHints();
@@ -323,11 +326,34 @@ void PlayLayer::update(float dt)
     }
 }
 
+#pragma mark - Functions
+
+void PlayLayer::calcuteScore()
+{
+    //计算分值
+    for (auto chain : m_level->m_removeMatches)//每一组消除组合判断分值
+    {
+        long score = m_level->giveScore(m_basicScore, chain->getSize());
+        //取中间坐标
+        DemonFruit* firstFruit = chain->getFirstFruit();
+        DemonFruit* lastFruit = chain->getLastFruit();
+        
+        Point centerPos = Point(0.5*(firstFruit->getPositionX()+lastFruit->getPositionX()),0.5*(firstFruit->getPositionY()+lastFruit->getPositionY()));
+        
+        animateScore(score,centerPos);//得分动画
+        m_basicScore *= 2;//如果连消，则每次基本分值增加一倍
+    }
+}
+
+#pragma mark - Animations
+
 void PlayLayer::animateSwap(DemonSwap *swap)
 {
     m_touchEnable = false;
     m_isAnimation = true;
     m_basicScore = __BASIC_SCORE;//重置基本分数
+    m_comboNum = 0;//重置连击数
+    m_comboLabel->setString("");//将标签内容置为空
     //玩家先选择的放在上面
     swap->m_fruitA->setLocalZOrder(2);
     swap->m_fruitB->setLocalZOrder(1);
@@ -350,6 +376,8 @@ void PlayLayer::animateInvalidSwap(DemonSwap *swap)
     m_touchEnable = false;
     m_isAnimation = true;
     m_basicScore = __BASIC_SCORE;//重置基本分数
+    m_comboNum = 0;//重置连击数
+    m_comboLabel->setString("");//将标签内容置为空
     //玩家先选择的在上面
     swap->m_fruitA->setLocalZOrder(2);
     swap->m_fruitB->setLocalZOrder(1);
@@ -385,14 +413,13 @@ void PlayLayer::animateFall()
     for (auto fruit : m_level->m_fallFruits)//掉落已存在的
     {
         //动画
-        fruit->setVisible(true);
+        
+        
         Point startPos = fruit->getPosition();
         Point endPos = m_level->getPosOfItem(fruit->getRow(), fruit->getCol());
         float swapDelay = 0.15;//交换动画用时
-        float explodDelay = 0.2;//消除用时
         float duration = ((startPos.y - endPos.y)/(2.5*startPos.y)+0.05* fruit->getRow());
         auto easeout = EaseSineIn::create(MoveTo::create(duration, endPos));
-        //        fruit->runAction(Sequence::create(DelayTime::create(delay),MoveTo::create(duration, endPos), NULL));
         fruit->runAction(Sequence::create(DelayTime::create(swapDelay),easeout, NULL));
     }
     m_level->m_fallFruits.clear();
@@ -405,6 +432,7 @@ void PlayLayer::animateExplode()
     for (auto chain : m_level->m_removeMatches)
     {
         vector<DemonFruit*>::iterator it = chain->m_fruitsChain.begin();
+        int i = 0;//标记，每个链只执行一次
         for (; it != chain->m_fruitsChain.end(); it++)
         {
             DemonFruit* fruit = *it;
@@ -413,6 +441,16 @@ void PlayLayer::animateExplode()
             fruit->explode();
             //消除特效根据果实的不同而不同
             animateExplodeEffect(fruitType,pos);
+            if (i == 0)
+            {
+                m_comboNum++;//每次消除连击数+1，但是每次交换会重置为0
+                m_elimateFruitType.push_back(fruitType);//记录消除的果实的种类
+                if(m_comboNum >= 2)//两连击以上
+                {
+                    animateCombos();//连击效果
+                }
+            }
+            i++;
         }
     }
     m_level->m_removeMatches.clear();
@@ -441,7 +479,7 @@ void PlayLayer::animateExplodeEffect(int fruitType, Point pos)
     float time = 0.4;
     // 2. action for circle
     auto circleSprite = Sprite::create("circle.png");
-    addChild(circleSprite, 10);
+    m_level->addChild(circleSprite, 10);
     circleSprite->setPosition(pos);
     circleSprite->setScale(0);// start size
     circleSprite->runAction(Sequence::create(ScaleTo::create(time, 1.0),
@@ -454,10 +492,28 @@ void PlayLayer::animateExplodeEffect(int fruitType, Point pos)
     particleStars->setBlendAdditive(false);
     particleStars->setPosition(pos);
     particleStars->setScale(0.3);
-    addChild(particleStars, 20);
+    m_level->addChild(particleStars, 20);
 }
 
-#pragma mark - callbacks
+void PlayLayer::animateCombos()
+{
+//    CCLOG("m_comboNum = %d",m_comboNum);
+    char buf[1024];
+    sprintf(buf, "%d Combos!",m_comboNum);
+    m_comboLabel->setString(buf);
+    int clolrBlue = 255 - (m_comboNum-2)*15;//颜色随着连击数从黄变红
+    if (clolrBlue < 0)
+    {
+        clolrBlue = 0;
+    }
+    m_comboLabel->setColor(Color3B(255, clolrBlue, 0));
+    if (m_comboLabel->getNumberOfRunningActions() == 0)
+    {
+        m_comboLabel->runAction(Sequence::create(ScaleTo::create(0.1, 1.7),ScaleTo::create(0.1, 1.5), NULL));
+    }
+}
+
+#pragma mark - Callbacks
 
 void PlayLayer::callNDBackSetZOrder(Sprite* sp,int zOrder)
 {

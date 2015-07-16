@@ -23,7 +23,7 @@ DemonTile* DemonTile::create(const string &strName)
     DemonTile* tile = new DemonTile();
     if (tile)
     {
-        tile->initWithSpriteFrameName(strName);
+        tile->initWithFile(strName);
         tile->autorelease();
         Size contentSize = tile->getContentSize();
         //将宽度缩放到69，高等比例缩小，果实是64，留1个间距

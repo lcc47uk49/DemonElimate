@@ -55,6 +55,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     searchPaths.insert(searchPaths.begin(), "Levels");
     searchPaths.insert(searchPaths.begin(), "Effects");
     searchPaths.insert(searchPaths.begin(), "Sounds");
+    searchPaths.insert(searchPaths.begin(), "Tile");
+    searchPaths.insert(searchPaths.begin(), "fonts");
     FileUtils::getInstance()->setSearchPaths(searchPaths);
     
     //加载资源

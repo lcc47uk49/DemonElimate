@@ -7,7 +7,8 @@
 //
 
 #include "DemonLevel.h"
-
+#define CLIPPING_NODE_UP 1
+#define CLIPPING_NODE_DOWN 0
 DemonLevel::DemonLevel():m_leftBottomPosX(0),m_leftBottomPosY(0)
 {
     m_fruitSize = Size(0,0);
@@ -35,6 +36,8 @@ DemonLevel::DemonLevel():m_leftBottomPosX(0),m_leftBottomPosY(0)
     m_allPossibleSwaps.clear();
     m_removeMatches.clear();
     m_fallFruits.clear();
+    m_stencil = nullptr;
+    m_clippingNode = nullptr;
 }
 
 DemonLevel::~DemonLevel()
@@ -104,7 +107,7 @@ bool DemonLevel::loadJson(const string &strName)
     ssize_t size;
     string strPath = FileUtils::getInstance()->fullPathForFilename(strName);
     unsigned char* ch = FileUtils::getInstance()->getFileData(strName, "r", &size);//读取json文件并且获得其大小存入size中
-    CCLOG("jsonFile size = %zd",size);//字节数
+//    CCLOG("jsonFile size = %zd",size);//字节数
     string data = string((const char*)ch,size);//使用文件数据创建一个string
     
     //josn操作都在document中
@@ -119,6 +122,10 @@ bool DemonLevel::loadJson(const string &strName)
 
 void DemonLevel::initTileMatrix()
 {
+    m_stencil = Node::create();
+    m_stencil->setAnchorPoint(Point(0,0));
+    m_stencil->setPosition(Point(0,0));
+    
     //读取地图
     rapidjson::Value &valArray = m_doc["tiles"];
     if(valArray.IsArray())//判断是否为数组
@@ -137,7 +144,7 @@ void DemonLevel::initTileMatrix()
                     if (1 == tileValue)
                     {
                         m_tileMatrix[tileRow][col] = DemonTile::create("Tile.png");
-                        this->addChild(m_tileMatrix[tileRow][col],0);
+                        m_stencil->addChild(m_tileMatrix[tileRow][col],CLIPPING_NODE_DOWN);//模板在下层
                         m_tileMatrix[tileRow][col]->setPosition(getPosOfItem(tileRow, col));
                     }
                     else if (0 == tileValue)
@@ -148,6 +155,12 @@ void DemonLevel::initTileMatrix()
             }
         }
     }
+    m_clippingNode = ClippingNode::create(m_stencil);
+    m_clippingNode->addChild(m_stencil);
+    m_clippingNode->setContentSize(this->getContentSize());
+    m_clippingNode->setPosition(0,0);
+    m_clippingNode->setAlphaThreshold(0);
+    this->addChild(m_clippingNode,1);
 }
 
 #pragma mark - Game Setup
@@ -162,7 +175,7 @@ void DemonLevel::shuffle()
         initIMatrix();
         initFruitMatrix();//根据m_iMatrix生成果实矩阵
     } while (detectPossibleSwaps() == 0);//如果没有可走的，则重新生成
-    printSwaps();
+//    printSwaps();//打印可交换的组合
 }
 
 void DemonLevel::initIMatrix()
@@ -210,7 +223,7 @@ void DemonLevel::initFruitMatrix()
             if (m_iMatrix[row][col] != -1)
             {
                 m_fruitMatrix[row][col] = DemonFruit::create(row, col, m_iMatrix[row][col]);//创建
-                this->addChild(m_fruitMatrix[row][col]);//加入level
+                m_clippingNode->addChild(m_fruitMatrix[row][col],CLIPPING_NODE_UP);//加入m_clippingNode上层
                 dropFruit(m_fruitMatrix[row][col]);//掉落
             }
             else if(m_iMatrix[row][col] == -1)
@@ -590,13 +603,12 @@ void DemonLevel::fillTop()
                 DemonFruit* fruit = DemonFruit::create(row, col, fruitType);
                 m_fruitMatrix[row][col] = fruit;
                 m_iMatrix[row][col] = fruitType;
-                this->addChild(fruit);
+                m_clippingNode->addChild(fruit,CLIPPING_NODE_UP);//加入m_clippingNode上层
                 m_fallFruits.pushBack(fruit);
                 int diffRow = __FRUIT_MATRIX_HEIGHT - beginRow;//第一个为空的果实到最上方果实的上一个空的行数
                 Point beginPos = getPosOfItem(fruit->getRow() + diffRow, fruit->getCol());//起始坐标，往上平移diffRow
                 Point endPos = getPosOfItem(fruit->getRow(),fruit->getCol());//最终坐标
                 fruit->setPosition(beginPos);
-                fruit->setVisible(false);
                 //动画--PlayLayer中
             }
         }

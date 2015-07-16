@@ -87,6 +87,9 @@ public:
     Vector<DemonSwap*> m_allPossibleSwaps;//保存了所有的交换 DemonSwap引用+1而不是DemonSwap中的两个果实引用+1
     Vector<DemonChain*> m_removeMatches;//保存了所有的可移除的链 同上DemonChain引用+1
     Vector<DemonFruit*> m_fallFruits;//保存将要掉落的果实
+    //蒙版
+    Node* m_stencil;//将所有地图节点加入模板节点
+    ClippingNode* m_clippingNode;//使用模板节点创建
 };
 
 #endif /* defined(__DemonElimate__DemonLevel__) */
