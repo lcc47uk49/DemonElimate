@@ -31,6 +31,8 @@ PlayLayer::PlayLayer()
     m_comboNum = 0;
     m_elimateFruitType.clear();
     m_comboLabel = nullptr;
+    m_skillElimateCount = 0;
+//    m_isSkillElimate = false;
 }
 
 PlayLayer::~PlayLayer()
@@ -89,6 +91,8 @@ bool PlayLayer::init()
     touchListener->onTouchEnded = CC_CALLBACK_2(PlayLayer::onTouchEnded, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
+    //初始化DemonSkill中的m_level
+    DemonSkill::getInstance()->initWithLevel(m_level);
     return true;
 }
 
@@ -283,9 +287,9 @@ void PlayLayer::update(float dt)
     {
         m_aftTime = GameTools::getInstance()->getCurrentTime();
         //获得消除链
-        size_t horizonSize = m_level->detectHorizontalMatches();
-        size_t verticalSize = m_level->detectVerticalMatches();//放在if中会被短路
-        if (horizonSize != 0 || verticalSize != 0)//如果当前有可消除的
+        m_level->detectHorizontalMatches();
+        m_level->detectVerticalMatches();//放在if中会被短路
+        if (m_level->m_removeMatches.size() != 0)//如果当前有可消除(非技能)的
         {
             m_level->removeChians();//根据消除链更新矩阵（在矩阵中将要移除的置为null）
             calcuteScore();//计算分值
@@ -299,7 +303,7 @@ void PlayLayer::update(float dt)
             m_prevTime = GameTools::getInstance()->getCurrentTime();
             if (m_level->detectPossibleSwaps() == 0)//消除后如果是死地图
             {
-                //清空现由果实
+                //清空现有果实
                 for (int row = 0; row < __FRUIT_MATRIX_HEIGHT; row++)
                 {
                     for (int col = 0; col < __FRUIT_MATRIX_WIDTH; col++)
@@ -342,6 +346,64 @@ void PlayLayer::calcuteScore()
         
         animateScore(score,centerPos);//得分动画
         m_basicScore *= 2;//如果连消，则每次基本分值增加一倍
+    }
+}
+
+void PlayLayer::giveSkill()
+{
+    long size = m_elimateFruitType.size();
+    int fruitType1, fruitType2, fruitType3;
+    if (size >= 3)
+    {
+        fruitType1 = m_elimateFruitType.back();//最后一个果实类型
+        fruitType2 = m_elimateFruitType.at(m_elimateFruitType.size()-2);//倒数第二个果实类型
+        fruitType3 = m_elimateFruitType.at(m_elimateFruitType.size()-3);//倒数第三个果实类型
+    }
+    else if(size == 2)
+    {
+        fruitType1 = m_elimateFruitType.back();//最后一个果实类型
+        fruitType2 = m_elimateFruitType.at(m_elimateFruitType.size()-2);//倒数第二个果实类型
+        fruitType3 = -1;//倒数第三个为空
+    }
+    else if(size == 1)
+    {
+        fruitType1 = m_elimateFruitType.back();//最后一个果实类型
+        fruitType2 = -1;
+        fruitType3 = -1;//两个为空
+    }
+    
+    if(fruitType1 == fruitType2 && fruitType2 == fruitType3)//释放大招
+    {
+        //判断技能是否已经解锁
+        int bigSkillType = fruitType1 + __SKILL_DIFFERENCE;
+        bool isUnlock = GameManager::getInstance()->isSkillUnlock(bigSkillType);
+        if (isUnlock)//解锁了则释放大招
+        {
+            CCLOG("Big Skill %d",bigSkillType);
+            m_elimateFruitType.clear();//释放完大招，清空消除类型链
+        }
+        else
+        {
+//            CCLOG("Big Skill %d is locked!",bigSkillType);
+            m_elimateFruitType.clear();
+            m_elimateFruitType.push_back(fruitType1);//清空消除链，并且记录最后一个消除的果实的类型
+        }
+        
+    }
+    else if (fruitType1 == fruitType2)
+    {
+        bool isUnlock = GameManager::getInstance()->isSkillUnlock(fruitType1);
+        if (isUnlock)
+        {
+            CCLOG("Skill %d",fruitType1);//释放小技能，不用消除链
+            animateSkill(fruitType1);
+        }
+    }
+    else if(fruitType1 != fruitType2)
+    {
+        //清空消除链，并且记录最后一个果实类型
+        m_elimateFruitType.clear();
+        m_elimateFruitType.push_back(fruitType1);
     }
 }
 
@@ -436,24 +498,76 @@ void PlayLayer::animateExplode()
         for (; it != chain->m_fruitsChain.end(); it++)
         {
             DemonFruit* fruit = *it;
-            Point pos = fruit->getPosition();
-            int fruitType = fruit->getFruitType();
-            fruit->explode();
-            //消除特效根据果实的不同而不同
-            animateExplodeEffect(fruitType,pos);
-            if (i == 0)
+            if(fruit != nullptr)
             {
-                m_comboNum++;//每次消除连击数+1，但是每次交换会重置为0
-                m_elimateFruitType.push_back(fruitType);//记录消除的果实的种类
-                if(m_comboNum >= 2)//两连击以上
+                int row = fruit->getRow();
+                int col = fruit->getCol();//获得要消除的果实的行列
+                
+                if (m_level->m_iMatrix[row][col] == -2)
                 {
-                    animateCombos();//连击效果
+                    //留给技能消除，这里不消除
+                    continue;
                 }
+//                CCLOG("Elimate [%d,%d]",row,col);
+                Point pos = fruit->getPosition();
+                int fruitType = fruit->getFruitType();
+                fruit->explode();
+                //消除特效根据果实的不同而不同
+                animateExplodeEffect(fruitType,pos);
+                if (i == 0)
+                {
+                    m_comboNum++;//每次消除连击数+1，但是每次交换会重置为0
+                    m_elimateFruitType.push_back(fruitType);//记录消除的果实的种类
+//                    CCLOG("cuurrent FruitType is %d",fruitType);
+                    //判断是否需要释放技能，释放什么技能
+                    giveSkill();
+                    if(m_comboNum >= 2)//两连击以上
+                    {
+                        animateCombos();//连击效果
+                    }
+                }
+                i++;
             }
-            i++;
+            
         }
     }
     m_level->m_removeMatches.clear();
+}
+
+void PlayLayer::animateSkillExplode(Vector<DemonChain*>& chains)
+{
+    m_touchEnable = false;
+    m_isAnimation = true;
+    for (auto chain : chains)
+    {
+        vector<DemonFruit*>::iterator it = chain->m_fruitsChain.begin();
+        for (; it != chain->m_fruitsChain.end(); it++)
+        {
+            DemonFruit* fruit = *it;
+            if (fruit != nullptr)
+            {
+                Point pos = fruit->getPosition();
+                int fruitType = fruit->getFruitType();
+                CCLOG("skillElimate [%d,%d]",fruit->getRow(),fruit->getCol());
+                fruit->explode();
+                //消除特效根据果实的不同而不同
+                animateExplodeEffect(fruitType,pos);
+                m_skillElimateCount++;//技能消除计数+1
+                if(m_skillElimateCount >= 100)
+                {
+                    m_skillElimateCount = 100;
+                    //发送信号，可以释放必杀
+                }
+            }
+        }
+        //每一个技能消除链进行记分
+        m_comboNum++;
+        if(m_comboNum >= 2)//两连击以上
+        {
+            animateCombos();//连击效果
+        }
+    }
+    chains.clear();
 }
 
 void PlayLayer::animateScore(long score,Point pos)
@@ -491,7 +605,10 @@ void PlayLayer::animateExplodeEffect(int fruitType, Point pos)
     particleStars->setAutoRemoveOnFinish(true);
     particleStars->setBlendAdditive(false);
     particleStars->setPosition(pos);
-    particleStars->setScale(0.3);
+    particleStars->setScale(0.8);
+//    Color4F beginColor4f = Color4F(255,0,0,255);
+//    particleStars->setStartColor(beginColor4f);
+//    particleStars->setEndColor(Color4F(255,255,255,255));
     m_level->addChild(particleStars, 20);
 }
 
@@ -510,6 +627,55 @@ void PlayLayer::animateCombos()
     if (m_comboLabel->getNumberOfRunningActions() == 0)
     {
         m_comboLabel->runAction(Sequence::create(ScaleTo::create(0.1, 1.7),ScaleTo::create(0.1, 1.5), NULL));
+    }
+}
+
+void PlayLayer::animateSkill(int fruitType)
+{
+    GameManager::getInstance()->setSkillLevel(fruitType, 5);
+    
+    switch (fruitType)
+    {
+        case 3://火焰果实技能效果
+        {
+            //技能效果
+            DemonChain* chain = DemonChain::create();
+            chain->m_chainType = ChainTypeFire;
+            DemonSkill::getInstance()->fireSkill(chain);
+            
+            //消除效果
+            Vector<DemonChain*> fireChain;
+            fireChain.pushBack(chain);
+            animateSkillExplode(fireChain);
+        }
+            break;
+        case 4://冰霜果实技能效果
+        {
+            //技能效果
+            DemonChain* chain = DemonChain::create();
+            chain->m_chainType = ChainTypeIce;
+            DemonSkill::getInstance()->iceSkill(chain);
+            
+            //消除效果
+            Vector<DemonChain*> iceChain;
+            iceChain.pushBack(chain);
+            animateSkillExplode(iceChain);
+        }
+            break;
+        case 5://炫光果实技能效果
+        {
+            //技能效果
+            DemonChain* chain = DemonChain::create();
+            chain->m_chainType = ChainTypeLight;
+            DemonSkill::getInstance()->lightSkill(chain);
+            //消除效果
+            Vector<DemonChain*> lightChain;
+            lightChain.pushBack(chain);
+            animateSkillExplode(lightChain);
+        }
+            break;
+        default:
+            break;
     }
 }
 

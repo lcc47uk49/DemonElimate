@@ -460,7 +460,7 @@ long DemonLevel::detectHorizontalMatches()
         //最后两列不需要探测，因为不能与下一个形成行链
         for (int col = 0; col < __FRUIT_MATRIX_WIDTH - 2;)//注意！不自增
         {
-            if (m_iMatrix[row][col] != -1)//此处有果实
+            if (m_iMatrix[row][col] >= 0)//此处有果实
             {
                 int matchType = m_iMatrix[row][col];
                 if (m_iMatrix[row][col+1] == matchType
@@ -495,7 +495,7 @@ long DemonLevel::detectVerticalMatches()
     {
         for (int row = 0; row < __FRUIT_MATRIX_HEIGHT - 2; )//不自知
         {
-            if(m_iMatrix[row][col] != -1)//此处有果实
+            if(m_iMatrix[row][col] >= 0)//此处有果实
             {
                 int matchType = m_iMatrix[row][col];
                 if (m_iMatrix[row+1][col] == matchType

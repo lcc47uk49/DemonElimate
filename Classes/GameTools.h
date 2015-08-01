@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "cocos2d.h"
 #include "Header.h"
+using namespace std;
 USING_NS_CC;
 
 class GameTools
@@ -48,6 +49,8 @@ public:
     
     // 获取系统时间，毫秒，比如返回5100即5.100秒
     static double getCurrentTime();
+    
+    bool isContain(vector<Point> &v, Point p);//判断是否包含的函数
     
     Size m_winSize;
 private:

@@ -98,3 +98,17 @@ double GameTools::getCurrentTime()
     
     return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
+
+bool GameTools::isContain(vector<Point> &v, Point p)
+{
+    vector<Point>::iterator it = v.begin();
+    for (; it != v.end(); it++)
+    {
+        Point pos = *it;
+        if (pos.x == p.x && pos.y == p.y)
+        {
+            return true;
+        }
+    }
+    return false;
+}

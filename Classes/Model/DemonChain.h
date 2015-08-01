@@ -18,7 +18,9 @@ typedef enum ChainType
 {
     ChainTypeHorizontal,
     ChainTypeVertical,
-    
+    ChainTypeFire,//火焰果实消除的链
+    ChainTypeIce,//冰霜果实消除链
+    ChainTypeLight,//炫光果实消除链
     // Note: add any other shapes you want to detect to this list.
     //ChainTypeL,
     //ChainTypeT,

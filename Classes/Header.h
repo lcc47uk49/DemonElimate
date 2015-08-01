@@ -20,5 +20,6 @@
 #define __TIME_DIFFERENCE_COMBOS        (1000)//重置combos的时间间隔
 #define TOTAL_SELECTEDFRUIT_NUM         (6)//最多可以选择的恶魔果实的数量
 #define __BASIC_SCORE                   (60)//基本分值60分
+#define __SKILL_DIFFERENCE              (1000)//大招和普通技能之间差值为1000
 
 #endif

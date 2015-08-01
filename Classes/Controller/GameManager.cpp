@@ -46,6 +46,10 @@ GameManager::GameManager()
         string strTmp = s_allFruitsArr[i];
         m_usedFruitsName.push_back(strTmp);
     }
+    for (int i = 0; i < TOTAL_SELECTEDFRUIT_NUM; i++)
+    {
+        m_unlockSkillNo.push_back(i);//初始化解锁3,4,5三个技能
+    }
 }
 
 GameManager::~GameManager()
@@ -196,4 +200,40 @@ vector<string>& GameManager::getusedFruitsName()
 const string& GameManager::getHighLightFruitName(int fruitType)
 {
     return s_allFruitsHighlightedArr[fruitType];
+}
+
+//判断技能是否已经解锁
+bool GameManager::isSkillUnlock(int skillNo)
+{
+    vector<int>::iterator it = m_unlockSkillNo.begin();
+    for (;it != m_unlockSkillNo.end() ; it++)
+    {
+        if (*it == skillNo)
+        {
+            return true;//包含技能编号说明技能已解锁
+        }
+    }
+    return false;
+}
+
+//解锁新技能
+void GameManager::addUnlockSkill(int skillNo)
+{
+    m_unlockSkillNo.push_back(skillNo);
+}
+
+//读取技能等级
+int GameManager::getSkillLevel(int fruitType)
+{
+    char buf[1024];
+    sprintf(buf, "skill%d_level",fruitType);
+    int level = UserDefault::getInstance()->getIntegerForKey(buf);
+    return level;
+}
+
+void GameManager::setSkillLevel(int fruitType, int level)
+{
+    char buf[1024];
+    sprintf(buf, "skill%d_level",fruitType);
+    UserDefault::getInstance()->setIntegerForKey(buf, level);
 }

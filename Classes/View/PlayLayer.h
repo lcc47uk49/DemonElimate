@@ -14,9 +14,11 @@
 #include "../Model/DemonFruit.h"
 #include "../Model/DemonLevel.h"
 #include "../Model/DemonTile.h"
+#include "../Model/DemonSkill.h"
 #include "../GameTools.h"
 #include "../Header.h"
 #include "../Controller/GameManager.h"
+
 USING_NS_CC;
 using namespace std;
 
@@ -35,15 +37,22 @@ public:
     virtual void onTouchEnded(Touch *touch, Event *unused_event);
     
 public:
+    //animations
     void animateSwap(DemonSwap* swap);//交换成功动画
     void animateInvalidSwap(DemonSwap* swap);//交换失败动画
     void animateFall();//掉落动画
     void animateExplode();//消除动画
+    void animateSkillExplode(Vector<DemonChain*>& chains);//技能消除动画，消除chains中的果实
     void animateScore(long score,Point pos);//在给定的坐标上进行得分动画
     void animateExplodeEffect(int fruitType, Point pos);//根据果实类型和坐标，设置消除特效
     void animateCombos();//消除连击
-    void calcuteScore();//计算分值
+    void animateSkill(int fruitType);//技能动画
     
+    //functions
+    void calcuteScore();//计算分值
+    void giveSkill();//释放技能，根据m_elimateFruitType
+    
+    //callbacks
     void callNDBackSetZOrder(Sprite* sp,int zOrder);//设置z轴顺序
     void callNActionEndRelease(Node* node);//动作结束引用-1
     void callNRemoveScoreLabel(Node* node);//动作结束移除标签
@@ -62,10 +71,12 @@ private:
     bool m_touchEnable;//是否可触摸
     bool m_isAnimation;//是否有动画
     
+    int m_skillElimateCount;//记录技能消除了多少个果实，用于释放必杀
+    
     //基本分值，每次连续消除会使m_basicScore乘2，效果果实个数从三个开始，每多一个分值乘2。每次交换都会重置m_basicScore为__BASIC_SCORE。如果是自动连续消除，则不经过交换，所以不重置m_basicScore。例如 第一次消除3个引发第二次的4消，第一次__BASIC_SCORE分，第二次为2*2*__BASIC_SCORE分（第二次的基本分值为__BASIC_SCORE*2）。第一次5消，引发三次连续的3消，则分值为2*2*__BASIC_SCORE，2*__BASIC_SCORE,4*__BASIC_SCORE，8*__BASIC_SCORE
     long m_basicScore;
     int m_comboNum;//记录连击数，每次消除连击数+1，但是每次交换会置为0（默认）
-    vector<int> m_elimateFruitType;//记录消除的果实的种类，方便判断是否释放技能
+    vector<int> m_elimateFruitType;//记录消除的果实的种类，方便判断是否释放技能，只记录玩家消除或者连消的，不记录技能打击消除的
     Label* m_comboLabel;//连击标签,加在m_level中，这样可以固定相对位置
     
 };

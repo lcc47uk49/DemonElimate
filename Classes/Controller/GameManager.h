@@ -17,6 +17,7 @@
 using namespace std;
 USING_NS_CC;
 
+//读写文件记录玩家数据
 class GameManager
 {
 public:
@@ -47,6 +48,15 @@ public:
     vector<string>& getusedFruitsName();
     const string& getHighLightFruitName(int fruitType);//根据果实类型返回对应的高亮图片
     
+    //读取技能等级
+    int getSkillLevel(int fruitType);
+    //设置技能等级
+    void setSkillLevel(int fruitType, int level);
+    
+    
+    bool isSkillUnlock(int skillNo);//判断技能是否解锁
+    void addUnlockSkill(int skillNo);//解锁新技能
+    
 private:
     //已解锁的恶魔果实编号
     vector<int> m_unlockFruitsNo;
@@ -56,5 +66,8 @@ private:
     vector<int> m_usedFruitsNo;
     //用来创建游戏的果实的名字 固定7个
     vector<string> m_usedFruitsName;
+    
+    //已经解锁的技能 = 已解锁的果实种类 + 后来解锁的大招
+    vector<int> m_unlockSkillNo;
 };
 #endif /* defined(__DemonElimination__GameManager__) */

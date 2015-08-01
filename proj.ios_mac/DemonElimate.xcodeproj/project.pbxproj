@@ -59,6 +59,7 @@
 		521A8EA919F11F5000D177D7 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 521A8EA819F11F5000D177D7 /* fonts */; };
 		521A8EAA19F11F5000D177D7 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 521A8EA819F11F5000D177D7 /* fonts */; };
 		52B47A471A53D09C004E4C60 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52B47A461A53D09B004E4C60 /* Security.framework */; };
+		673DFC951B621E59004B4821 /* DemonSkill.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 673DFC931B621E59004B4821 /* DemonSkill.cpp */; };
 		678C94BB1B4A714200DE3BBB /* DemonFruit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 678C94B91B4A714200DE3BBB /* DemonFruit.cpp */; };
 		678C94BE1B4A718B00DE3BBB /* DemonLevel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 678C94BC1B4A718B00DE3BBB /* DemonLevel.cpp */; };
 		678C94CC1B4ABF3400DE3BBB /* Levels in Resources */ = {isa = PBXBuildFile; fileRef = 678C94CB1B4ABF3400DE3BBB /* Levels */; };
@@ -165,6 +166,8 @@
 		521A8E6319F0C34300D177D7 /* Default-736h@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-736h@3x.png"; sourceTree = "<group>"; };
 		521A8EA819F11F5000D177D7 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fonts; sourceTree = "<group>"; };
 		52B47A461A53D09B004E4C60 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		673DFC931B621E59004B4821 /* DemonSkill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemonSkill.cpp; sourceTree = "<group>"; };
+		673DFC941B621E59004B4821 /* DemonSkill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemonSkill.h; sourceTree = "<group>"; };
 		678C94B91B4A714200DE3BBB /* DemonFruit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemonFruit.cpp; sourceTree = "<group>"; };
 		678C94BA1B4A714200DE3BBB /* DemonFruit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemonFruit.h; sourceTree = "<group>"; };
 		678C94BC1B4A718B00DE3BBB /* DemonLevel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DemonLevel.cpp; sourceTree = "<group>"; };
@@ -416,6 +419,8 @@
 				67EA48EB1B4D1CEC003FA365 /* DemonSwap.h */,
 				67EA48EF1B4D587B003FA365 /* DemonChain.cpp */,
 				67EA48F01B4D587B003FA365 /* DemonChain.h */,
+				673DFC931B621E59004B4821 /* DemonSkill.cpp */,
+				673DFC941B621E59004B4821 /* DemonSkill.h */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -586,6 +591,7 @@
 				67D965F11B4BD2390052970A /* GameManager.cpp in Sources */,
 				46880B8A19C43A87006E1F66 /* HelloWorldScene.cpp in Sources */,
 				678C94BE1B4A718B00DE3BBB /* DemonLevel.cpp in Sources */,
+				673DFC951B621E59004B4821 /* DemonSkill.cpp in Sources */,
 				67A0D6061B4A297700234581 /* GameTools.cpp in Sources */,
 				503AE10017EB989F00D1A890 /* AppController.mm in Sources */,
 				67D965EB1B4BA8730052970A /* DemonTile.cpp in Sources */,
