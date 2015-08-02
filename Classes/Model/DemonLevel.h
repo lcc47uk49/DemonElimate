@@ -14,6 +14,7 @@
 #include "DemonTile.h"
 #include "DemonSwap.h"
 #include "DemonChain.h"
+#include "DemonTree.h"
 #include "../Header.h"
 #include "json/rapidjson.h"
 #include "json/document.h"
@@ -90,6 +91,8 @@ public:
     //蒙版
     Node* m_stencil;//将所有地图节点加入模板节点
     ClippingNode* m_clippingNode;//使用模板节点创建
+    
+    DemonTree* m_tree;//大树
 };
 
 #endif /* defined(__DemonElimate__DemonLevel__) */

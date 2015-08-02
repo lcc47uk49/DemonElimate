@@ -38,6 +38,7 @@ DemonLevel::DemonLevel():m_leftBottomPosX(0),m_leftBottomPosY(0)
     m_fallFruits.clear();
     m_stencil = nullptr;
     m_clippingNode = nullptr;
+    m_tree = nullptr;
 }
 
 DemonLevel::~DemonLevel()

@@ -39,6 +39,103 @@ bool DemonSkill::initWithLevel(DemonLevel *level)
     return false;
 }
 
+#pragma mark - skills
+
+void DemonSkill::treatSkill()
+{
+    CCLOG("treatSkill");
+    int level = GameManager::getInstance()->getSkillLevel(0);
+    int treatHP = level * 5;//每一级多治疗5HP
+    //大树的生命值增加treatHP
+    m_level->m_tree->addHP(treatHP);
+    Point pos = Point(m_level->m_tree->getPositionX(),
+                      m_level->m_tree->getPositionY() - m_level->m_tree->getContentSize().height/3);
+    Point pos2 = Point(m_level->m_tree->getPositionX(),
+                      m_level->m_tree->getPositionY());
+    //效果1--要改，同治愈果实
+    auto cache = SpriteFrameCache::getInstance();
+    cache->addSpriteFramesWithFile("explodetreat.plist");
+    auto sp1  = Sprite::createWithSpriteFrameName("explodetreat_1.png");
+    sp1->setPosition(pos);
+    sp1->setScale(2);
+    m_level->addChild(sp1,10);
+    
+    Vector<SpriteFrame*> arr;
+    char buf[1024] = {0};
+    for (int i = 2; i <= 17; i++)
+    {
+        sprintf(buf, "explodetreat_%d.png",i);
+        auto frame = cache->getSpriteFrameByName(buf);
+        arr.pushBack(frame);
+    }
+    auto animation = Animation::createWithSpriteFrames(arr,0.05);
+    sp1->runAction(Sequence::create(Animate::create(animation),
+                                    CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, sp1)),nullptr));
+    
+    //效果2
+    auto sp2 = Sprite::createWithSpriteFrameName("explodetreat_18.png");
+    sp2->setPosition(pos2);
+    m_level->addChild(sp2,10);
+    
+    Vector<SpriteFrame*> arr2;
+    char buf2[1024] = {0};
+    for (int i = 19; i <= 27; i++)
+    {
+        sprintf(buf2, "explodetreat_%d.png",i);
+        auto frame = cache->getSpriteFrameByName(buf2);
+        arr2.pushBack(frame);
+    }
+    auto animation2 = Animation::createWithSpriteFrames(arr2,0.05);
+    sp2->runAction(Sequence::create(Animate::create(animation2),
+                                    CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, sp2)),nullptr));
+    
+}
+
+void DemonSkill::goldSkill()
+{
+    CCLOG("goldSkill");
+    int level = GameManager::getInstance()->getSkillLevel(1);
+    //效果同治愈果实
+}
+
+void DemonSkill::powerSkill()
+{
+    CCLOG("powerSkill");
+    int level = GameManager::getInstance()->getSkillLevel(2);
+    //基础伤害每一级增加50
+    int damage = level * 50;
+    m_level->m_tree->addDamage(damage);
+    
+    //效果1
+    Point pos = Point(m_level->m_tree->getPositionX(),
+                       m_level->m_tree->getPositionY() - m_level->m_tree->getContentSize().height/3);
+    Point pos2 = Point(m_level->m_tree->getPositionX(),
+                       m_level->m_tree->getPositionY());
+    auto cache = SpriteFrameCache::getInstance();
+    cache->addSpriteFramesWithFile("explodepower.plist");
+    auto sp1  = Sprite::createWithSpriteFrameName("explodepower_1.png");
+    sp1->setPosition(pos);
+    m_level->addChild(sp1,10);
+    
+    float time = 0.1;
+    Vector<SpriteFrame*> arr;
+    char buf[1024] = {0};
+    for (int i = 2; i <= 6; i++)
+    {
+        sprintf(buf, "explodepower_%d.png",i);
+        auto frame = cache->getSpriteFrameByName(buf);
+        arr.pushBack(frame);
+    }
+    auto animation = Animation::createWithSpriteFrames(arr,time);
+    auto animate = Animate::create(animation);
+    auto mvTo = MoveTo::create(3*time, pos2);
+    auto spawn = Spawn::create(animate,mvTo, NULL);
+    sp1->runAction(Sequence::create(spawn,
+                                    CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, sp1)),nullptr));
+    //效果2,加攻击 向上的小箭头，配字pwoerup
+    
+}
+
 void DemonSkill::fireSkill(DemonChain* chain)//根据技能等级选择若干个果实，1-2x2,2-2x3,3-3x3,4-3x4,5-4x4，首先选择左下角的
 {
     CCLOG("fireSkill");

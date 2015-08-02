@@ -91,8 +91,13 @@ bool PlayLayer::init()
     touchListener->onTouchEnded = CC_CALLBACK_2(PlayLayer::onTouchEnded, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
 
+    m_level->m_tree = DemonTree::create();
+    m_level->addChild(m_level->m_tree,10);
+    m_level->m_tree->setPosition(Point(m_level->getContentSize().width* 0.1,m_level->getContentSize().height*0.8));
+    
     //初始化DemonSkill中的m_level
     DemonSkill::getInstance()->initWithLevel(m_level);
+    
     return true;
 }
 
@@ -606,9 +611,6 @@ void PlayLayer::animateExplodeEffect(int fruitType, Point pos)
     particleStars->setBlendAdditive(false);
     particleStars->setPosition(pos);
     particleStars->setScale(0.8);
-//    Color4F beginColor4f = Color4F(255,0,0,255);
-//    particleStars->setStartColor(beginColor4f);
-//    particleStars->setEndColor(Color4F(255,255,255,255));
     m_level->addChild(particleStars, 20);
 }
 
@@ -636,6 +638,24 @@ void PlayLayer::animateSkill(int fruitType)
     
     switch (fruitType)
     {
+        case 0://治愈果实技能效果
+        {
+            //技能效果
+            DemonSkill::getInstance()->treatSkill();
+        }
+            break;
+        case 1://金币果实技能效果
+        {
+            //技能效果
+            DemonSkill::getInstance()->goldSkill();
+        }
+            break;
+        case 2://攻击果实技能效果
+        {
+            //技能效果
+            DemonSkill::getInstance()->powerSkill();
+        }
+            break;
         case 3://火焰果实技能效果
         {
             //技能效果
