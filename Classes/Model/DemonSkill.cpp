@@ -43,9 +43,11 @@ void DemonSkill::fireSkill(DemonChain* chain)//根据技能等级选择若干个
 {
     CCLOG("fireSkill");
     int level = GameManager::getInstance()->getSkillLevel(3);
-    
+    Point pos1,pos2;
     int randRow = rand() % (__FRUIT_MATRIX_HEIGHT - (level+1)/2);
     int randCol = rand() % (__FRUIT_MATRIX_WIDTH - 1 - level/2);
+    pos1 = m_level->getPosOfItem(randRow, randCol);//左下角的点
+    pos2 = m_level->getPosOfItem(randRow + (level+1)/2, randCol + 1 + level/2);//右上角的点
     for (int row = randRow; row <= randRow + (level+1)/2; row++)
     {
         for (int col = randCol; col <= randCol + 1 + level/2; col++)
@@ -59,6 +61,63 @@ void DemonSkill::fireSkill(DemonChain* chain)//根据技能等级选择若干个
             }
         }
     }
+    //爆破动画
+    auto cache = SpriteFrameCache::getInstance();
+    cache->addSpriteFramesWithFile("explosion.plist");
+    auto sp1 = Sprite::createWithSpriteFrameName("explosion_09.png");
+    sp1->setPosition((pos1+pos2)/2);
+    m_level->m_clippingNode->addChild(sp1,10);
+    float scalex = 2.5;
+    float scaley = 2.5;
+    switch (level)
+    {
+        case 1:
+        {
+            scalex = 2.5;
+            scaley = 2.5;
+        }
+            break;
+        case 2:
+        {
+            scalex = 3.25;
+            scaley = 2.5;
+        }
+            break;
+        case 3:
+        {
+            scalex = 3.25;
+            scaley = 3.25;
+        }
+            break;
+        case 4:
+        {
+            scalex = 4;
+            scaley = 3.25;
+        }
+            break;
+        case 5:
+        {
+            scalex = 4;
+            scaley = 4;
+        }
+            break;
+        default:
+            break;
+    }
+    sp1->setScaleX(scalex);
+    sp1->setScaleY(scaley);
+    
+    Vector<SpriteFrame*> arr;
+    char buf[1024] = {0};
+    for (int i = 10; i <= 15; i++)
+    {
+        sprintf(buf, "explosion_%02d.png",i);
+        auto frame = cache->getSpriteFrameByName(buf);
+        arr.pushBack(frame);
+    }
+    auto animation = Animation::createWithSpriteFrames(arr,0.05);
+    sp1->runAction(Sequence::create(Animate::create(animation),
+                                    CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, sp1)),nullptr));
 }
 
 void DemonSkill::iceSkill(DemonChain* chain)//根据技能等级随机选择若干个果实引爆 1-4,2-6,3-9,4-12,5-16
@@ -88,6 +147,7 @@ void DemonSkill::iceSkill(DemonChain* chain)//根据技能等级随机选择若�
     }
     vector<Point> pointVector;
     pointVector.clear();
+    
     //随机选择9个不同且不为空的果实
     for (int i = 0; i < num; i++)
     {
@@ -115,6 +175,34 @@ void DemonSkill::iceSkill(DemonChain* chain)//根据技能等级随机选择若�
         //3.加入冰霜消除链中
         chain->addFruit(fruit);
     }
+    
+    //爆破动画
+    auto cache = SpriteFrameCache::getInstance();
+    cache->addSpriteFramesWithFile("explodeice.plist");
+    
+    for (vector<Point>::iterator it = pointVector.begin(); it != pointVector.end(); it++)
+    {
+        auto sp1 = Sprite::createWithSpriteFrameName("explodeice_1.png");
+        Point point = *it;
+        Point pos = m_level->getPosOfItem(point.x, point.y);
+        sp1->setPosition(pos);
+        sp1->setScale(0.5);
+        m_level->m_clippingNode->addChild(sp1,10);
+        
+        Vector<SpriteFrame*> arr;
+        char buf[1024] = {0};
+        for (int i = 2; i <= 10; i++)
+        {
+            sprintf(buf, "explodeice_%d.png",i);
+            auto frame = cache->getSpriteFrameByName(buf);
+            arr.pushBack(frame);
+        }
+        auto animation = Animation::createWithSpriteFrames(arr,0.04);
+        sp1->runAction(Sequence::create(Animate::create(animation),
+                                        CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, sp1)),nullptr));
+    }
+    
+
 }
 
 void DemonSkill::lightSkill(DemonChain* chain)//根据技能等级随机选择若干行或者列果实引爆

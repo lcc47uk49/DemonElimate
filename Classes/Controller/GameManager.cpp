@@ -41,10 +41,13 @@ GameManager::GameManager()
     //初始化
     for (int i = 0; i < TOTAL_SELECTEDFRUIT_NUM; i++)
     {
-        m_unlockFruitsNo.push_back(i);
-        m_usedFruitsNo.push_back(i);
         string strTmp = s_allFruitsArr[i];
         m_usedFruitsName.push_back(strTmp);
+    }
+    for (int i = 0; i < TOTAL_SELECTEDFRUIT_NUM; i++)
+    {
+        m_unlockFruitsNo.push_back(i);
+        m_usedFruitsNo.push_back(i);
     }
     for (int i = 0; i < TOTAL_SELECTEDFRUIT_NUM; i++)
     {
