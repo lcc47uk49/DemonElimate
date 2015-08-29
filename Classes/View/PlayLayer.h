@@ -15,6 +15,7 @@
 #include "../Model/DemonLevel.h"
 #include "../Model/DemonTile.h"
 #include "../Model/DemonSkill.h"
+#include "../Model/DemonEnemy.h"
 #include "../GameTools.h"
 #include "../Header.h"
 #include "../Controller/GameManager.h"
@@ -30,7 +31,9 @@ public:
      static Scene* createScene();
     CREATE_FUNC(PlayLayer);
     virtual bool init();
+    //定时器
     virtual void update(float dt);
+    void addEnemyTimer(float dt);
     //单点触摸
     virtual bool onTouchBegan(Touch *touch, Event *unused_event);
     virtual void onTouchMoved(Touch *touch, Event *unused_event);
@@ -47,15 +50,18 @@ public:
     void animateExplodeEffect(int fruitType, Point pos);//根据果实类型和坐标，设置消除特效
     void animateCombos();//消除连击
     void animateSkill(int fruitType);//技能动画
+    void animateCountDown();//倒计时动画
     
     //functions
     void calcuteScore();//计算分值
     void giveSkill();//释放技能，根据m_elimateFruitType
+    void collideWithTree();//碰撞检测，判断是否与树有碰撞了
     
     //callbacks
     void callNDBackSetZOrder(Sprite* sp,int zOrder);//设置z轴顺序
     void callNActionEndRelease(Node* node);//动作结束引用-1
     void callNRemoveScoreLabel(Node* node);//动作结束移除标签
+    void callGameBegin();//游戏开始,允许触摸，计时开始
 private:
     DemonLevel* m_level;//保存关卡信息，同时也是屏幕中心适配节点
     Node* m_bgFitNode;//背景适配节点
@@ -78,6 +84,8 @@ private:
     int m_comboNum;//记录连击数，每次消除连击数+1，但是每次交换会置为0（默认）
     vector<int> m_elimateFruitType;//记录消除的果实的种类，方便判断是否释放技能，只记录玩家消除或者连消的，不记录技能打击消除的
     Label* m_comboLabel;//连击标签,加在m_level中，这样可以固定相对位置
+    
+    Vector<DemonEnemy*> m_enemiesInLevel;//记录了所有添加到m_level中的DemonEnemy;
     
 };
 

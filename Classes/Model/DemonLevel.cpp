@@ -39,6 +39,7 @@ DemonLevel::DemonLevel():m_leftBottomPosX(0),m_leftBottomPosY(0)
     m_stencil = nullptr;
     m_clippingNode = nullptr;
     m_tree = nullptr;
+    m_enemies.clear();
 }
 
 DemonLevel::~DemonLevel()
@@ -99,6 +100,7 @@ bool DemonLevel::initWithFile(const string &strName)
     setZeroPoint();
     if(loadJson(strName) == false) return false;//读取后m_doc即被赋值了
     initTileMatrix();//读取地图
+    initEnemies();//读取敌人数据
     //读取其他数据
     return true;
 }
@@ -134,7 +136,7 @@ void DemonLevel::initTileMatrix()
         for (int row = 0; row < valArray.Capacity(); row++)
         {
             rapidjson::Value&valInnerArray = valArray[row];//json第row行
-            if(valArray.IsArray())//判断是否为数组
+            if(valInnerArray.IsArray())//判断是否为数组
             {
                 for (int col = 0; col < valInnerArray.Capacity(); col++)
                 {
@@ -162,6 +164,36 @@ void DemonLevel::initTileMatrix()
     m_clippingNode->setPosition(0,0);
     m_clippingNode->setAlphaThreshold(0);
     this->addChild(m_clippingNode,1);
+}
+
+void DemonLevel::initEnemies()
+{
+    //读取数据
+    rapidjson::Value &valArray = m_doc["enemies"];
+    if(valArray.IsArray())//判断是否为数组
+    {
+        for (int row = 0; row < valArray.Capacity(); row++)
+        {
+            rapidjson::Value&valInnerArray = valArray[row];//json第row行
+            if(valInnerArray.IsArray())//判断是否为数组
+            {
+                int enemy[3];//保存创建enemy的三个条件，0->种类 1->等级 2->个数
+                for (int col = 0; col < valInnerArray.Capacity(); col++)
+                {
+                    rapidjson::Value&valInt = valInnerArray[col];//json第col列
+                    enemy[col] = valInt.GetInt();
+                }
+                //创建敌人并加入m_enemies
+                for (int num = 0; num < enemy[2]; num++)
+                {
+                    int index = enemy[0];
+                    int level = enemy[1];
+                    DemonEnemy* enemy = DemonEnemy::create(index, level);
+                    m_enemies.pushBack(enemy);
+                }
+            }
+        }
+    }
 }
 
 #pragma mark - Game Setup

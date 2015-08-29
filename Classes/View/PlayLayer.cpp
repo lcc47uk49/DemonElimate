@@ -32,6 +32,7 @@ PlayLayer::PlayLayer()
     m_elimateFruitType.clear();
     m_comboLabel = nullptr;
     m_skillElimateCount = 0;
+    m_enemiesInLevel.clear();
 //    m_isSkillElimate = false;
 }
 
@@ -77,12 +78,18 @@ bool PlayLayer::init()
     m_level->addChild(m_comboLabel);
     m_comboLabel->setPosition(m_level->getContentSize().width*0.8,m_level->getContentSize().height*0.7);
     
+    //创建树
+    m_level->m_tree = DemonTree::create();
+    m_level->addChild(m_level->m_tree,10);
+    m_level->m_tree->setPosition(Point(m_level->getContentSize().width* 0.1,m_level->getContentSize().height*0.8));
+    
+    //初始化DemonSkill中的m_level
+    DemonSkill::getInstance()->initWithLevel(m_level);
+    
     //开始游戏
     m_level->shuffle();
-    m_prevTime = GameTools::getInstance()->getCurrentTime();//获取当前时间
-    
-    //更新
-    scheduleUpdate();
+    //倒计时动画
+    animateCountDown();
     
     //触摸绑定--单点触摸
     auto touchListener = EventListenerTouchOneByOne::create();
@@ -90,13 +97,6 @@ bool PlayLayer::init()
     touchListener->onTouchMoved = CC_CALLBACK_2(PlayLayer::onTouchMoved, this);
     touchListener->onTouchEnded = CC_CALLBACK_2(PlayLayer::onTouchEnded, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
-
-    m_level->m_tree = DemonTree::create();
-    m_level->addChild(m_level->m_tree,10);
-    m_level->m_tree->setPosition(Point(m_level->getContentSize().width* 0.1,m_level->getContentSize().height*0.8));
-    
-    //初始化DemonSkill中的m_level
-    DemonSkill::getInstance()->initWithLevel(m_level);
     
     return true;
 }
@@ -257,7 +257,7 @@ void PlayLayer::onTouchEnded(Touch *touch, Event *unused_event)
     m_prevTime = GameTools::getInstance()->getCurrentTime();
 }
 
-#pragma mark - Game Update
+#pragma mark - 定时器
 
 void PlayLayer::update(float dt)
 {
@@ -333,6 +333,39 @@ void PlayLayer::update(float dt)
             m_prevTime = GameTools::getInstance()->getCurrentTime();
         }
     }
+    //碰撞检测
+    collideWithTree();
+    //检查游戏是否结束
+    if (m_level->m_tree->getHP() <= 1)
+    {
+        CCLOG("GameOver!!");
+        for (auto obj : m_enemiesInLevel)
+        {
+            DemonEnemy* enemy = dynamic_cast<DemonEnemy*>(obj);
+            if (enemy != nullptr)
+            {
+                enemy->setState(3);
+            }
+        }
+        m_touchEnable = false;
+        this->unschedule(schedule_selector(PlayLayer::addEnemyTimer));
+        unscheduleUpdate();
+    }
+}
+
+void PlayLayer::addEnemyTimer(float dt)
+{
+//    CCLOG("add enemy!!");
+    //1.取出向量中的第一个
+    DemonEnemy* enemy = m_level->m_enemies.front();
+    if(enemy == nullptr) return;
+    //2.添加到m_level中并记录已经添加的敌人
+    m_level->addChild(enemy,10);
+    m_enemiesInLevel.pushBack(enemy);// 加入 “在m_level中的敌人” 的向量
+    enemy->setPosition(Point(m_level->getContentSize().width,m_level->getContentSize().height*0.9));
+    //3.从m_enemies中移除该敌人
+    m_level->m_enemies.erase(m_level->m_enemies.begin());
+//    CCLOG("m_enemies.size = %ld",m_level->m_enemies.size());
 }
 
 #pragma mark - Functions
@@ -410,6 +443,26 @@ void PlayLayer::giveSkill()
         m_elimateFruitType.clear();
         m_elimateFruitType.push_back(fruitType1);
     }
+}
+
+void PlayLayer::collideWithTree()
+{
+    Rect rectOfTree = m_level->m_tree->boundingBox();
+    
+    for (auto obj : m_enemiesInLevel)
+    {
+        DemonEnemy* enemy = dynamic_cast<DemonEnemy*>(obj);
+        if(enemy->boundingBox().intersectsRect(rectOfTree))
+        {
+            enemy->setState(2);//更改状态为攻击
+            int aggressivity = enemy->getAggressivity();//获取攻击力
+            enemy->attack();//攻击后消失
+            m_level->m_tree->minusHP(aggressivity);//大树掉血
+            m_enemiesInLevel.eraseObject(enemy);//从m_enemiesInLevel中移除
+        }
+    }
+//    CCLOG("m_enemiesInLevel.size = %ld",m_enemiesInLevel.size());
+    
 }
 
 #pragma mark - Animations
@@ -699,6 +752,42 @@ void PlayLayer::animateSkill(int fruitType)
     }
 }
 
+//倒计时动画
+void PlayLayer::animateCountDown()
+{
+    //开始倒计时动画效果
+    auto countGo = Sprite::createWithSpriteFrameName("countdown_13.png");
+    m_level->addChild(countGo,9);
+    countGo->setAnchorPoint(Point(0.5,1));
+    countGo->setPosition(Point(m_level->getContentSize().width* 0.5,m_level->getContentSize().height));
+    
+    auto countDown = Sprite::createWithSpriteFrameName("countdown_11.png");
+    m_level->addChild(countDown,10);
+    countDown->setAnchorPoint(Point(0.5,1));
+    countDown->setPosition(Point(m_level->getContentSize().width* 0.5,m_level->getContentSize().height));
+    auto countNum = Sprite::createWithSpriteFrameName("countdown_01.png");
+    countDown->addChild(countNum);
+    countNum->setPosition(Point(countDown->getContentSize().width/2,countDown->getContentSize().height/2));
+    auto countCircle = Sprite::createWithSpriteFrameName("countdown_12.png");
+    countCircle->setPosition(Point(countDown->getContentSize().width/2,countDown->getContentSize().height/2));
+    countDown->addChild(countCircle);
+    
+    Vector<SpriteFrame*> arr;
+    char buf[1024] = {0};
+    for (int i = 1; i <= 3; i++)
+    {
+        sprintf(buf, "countdown_%02d.png",i);
+        auto frame = SpriteFrameCache::getInstance()->getSpriteFrameByName(buf);
+        arr.pushBack(frame);
+    }
+    auto animation = Animation::createWithSpriteFrames(arr,1);
+    countNum->runAction(Sequence::create(Animate::create(animation),CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, countDown)),nullptr));
+    countCircle->runAction(Sequence::create(RotateTo::create(3, -1080),CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, countCircle)),nullptr));
+    
+    auto callBegin = CallFunc::create(CC_CALLBACK_0(PlayLayer::callGameBegin, this));//游戏开始允许触摸，添加怪物，在Go消失之后
+    countGo->runAction(Sequence::create(DelayTime::create(4),CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent, countGo)),callBegin,nullptr));
+}
+
 #pragma mark - Callbacks
 
 void PlayLayer::callNDBackSetZOrder(Sprite* sp,int zOrder)
@@ -718,4 +807,16 @@ void PlayLayer::callNRemoveScoreLabel(Node* node)
         node->removeFromParent();
         node = nullptr;
     }
+}
+
+//游戏开始
+void PlayLayer::callGameBegin()
+{
+    //开始计时
+    m_prevTime = GameTools::getInstance()->getCurrentTime();//获取当前时间
+    //更新--允许触摸
+    scheduleUpdate();
+    //添加怪物--定时器
+    int enemyNum = m_level->m_enemies.size();
+    schedule(schedule_selector(PlayLayer::addEnemyTimer), 1, enemyNum-1, 0.1);//第一次调用不算重复次数，另外重复enemyNum-1次，一共enemyNum次
 }

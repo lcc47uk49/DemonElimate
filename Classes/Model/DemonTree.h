@@ -20,6 +20,9 @@ public:
     DemonTree();
     ~DemonTree();
     static DemonTree* create();
+    void initTree();//初始化
+    void updateHPSprite();//更新大树生命值图标
+    
     void addHP(int value);//增加value生命值
     void minusHP(int value);//减少value生命值
     int getHP();//获取当前生命值
@@ -30,6 +33,7 @@ private:
     int m_hp;//生命值
     int m_totalHP;
     int m_basicDemange;//基础伤害，技能伤害由 基础伤害、技能等级和系数决定
+    Sprite* m_spriteHP;//生命值图标
 //    int m_defence;//护甲
     
     

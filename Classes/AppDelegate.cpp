@@ -51,16 +51,20 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //添加搜索路径
     vector<string> searchPaths = FileUtils::getInstance()->getSearchPaths();
     searchPaths.insert(searchPaths.begin(), "DemonFruit");
+    searchPaths.insert(searchPaths.begin(), "DemonEnemy");
     searchPaths.insert(searchPaths.begin(), "Scene");
     searchPaths.insert(searchPaths.begin(), "Levels");
     searchPaths.insert(searchPaths.begin(), "Effects");
     searchPaths.insert(searchPaths.begin(), "Sounds");
     searchPaths.insert(searchPaths.begin(), "Tile");
     searchPaths.insert(searchPaths.begin(), "fonts");
+    searchPaths.insert(searchPaths.begin(),"Items");
     FileUtils::getInstance()->setSearchPaths(searchPaths);
     
     //加载资源
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonFruit.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonEnemy.plist");
+    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Items02-hd.plist");
 //    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("stars.plist");
     // create a scene. it's an autorelease object
     auto scene = PlayLayer::createScene();
