@@ -21,5 +21,21 @@
 #define TOTAL_SELECTEDFRUIT_NUM         (6)//最多可以选择的恶魔果实的数量
 #define __BASIC_SCORE                   (60)//基本分值60分
 #define __SKILL_DIFFERENCE              (1000)//大招和普通技能之间差值为1000
+#define __RUN_ACTION_TIME               (4)//人物跑动的时间
+
+//路径
+static const char s_magPan[]              =  "panel.png";
+
+static const char s_panSpNor[3][64]     =  {"sprite1.png","sprite2.png","sprite3.png"};
+static const char s_panSpDis[3][64]     =  {"sprite1no.png","sprite2no.png","sprite3no.png"};
+
+static const char s_ptBg[]           =  "lifebg.png";
+static const char s_ptBg2[]          =  "lifebg2.png";
+static const char s_ptLife[]         =  "herolife.png";
+static const char s_ptLife2[]         =  "life.png";
+static const char s_ptPower[]         =  "power.png";
+
+static const char s_spConfJson[]          =  "json/spriteConfig.json";
+static const char s_spMagJson[]          =  "json/magicConfig.json";
 
 #endif

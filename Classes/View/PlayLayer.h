@@ -15,10 +15,11 @@
 #include "../Model/DemonLevel.h"
 #include "../Model/DemonTile.h"
 #include "../Model/DemonSkill.h"
-#include "../Model/DemonEnemy.h"
 #include "../GameTools.h"
 #include "../Header.h"
 #include "../Controller/GameManager.h"
+#include "SpriteSystem.h"
+#include "../Message.h"
 
 USING_NS_CC;
 using namespace std;
@@ -56,14 +57,18 @@ public:
     void calcuteScore();//计算分值
     void giveSkill();//释放技能，根据m_elimateFruitType
     void collideWithTree();//碰撞检测，判断是否与树有碰撞了
-    
+    void collideWithEnemy();//碰撞检测，判断子弹是否与怪物碰撞了
     //callbacks
     void callNDBackSetZOrder(Sprite* sp,int zOrder);//设置z轴顺序
     void callNActionEndRelease(Node* node);//动作结束引用-1
     void callNRemoveScoreLabel(Node* node);//动作结束移除标签
-    void callGameBegin();//游戏开始,允许触摸，计时开始
+    void callGameBegin(float dt);//游戏开始,允许触摸，计时开始
+    
+    //消息处理
+    void handleMsg(float dt);
 private:
     DemonLevel* m_level;//保存关卡信息，同时也是屏幕中心适配节点
+    SpriteSystem* m_spriteSystem;//战斗层
     Node* m_bgFitNode;//背景适配节点
     
     DemonFruit* m_srcFruit;//选择的果实
@@ -85,8 +90,9 @@ private:
     vector<int> m_elimateFruitType;//记录消除的果实的种类，方便判断是否释放技能，只记录玩家消除或者连消的，不记录技能打击消除的
     Label* m_comboLabel;//连击标签,加在m_level中，这样可以固定相对位置
     
-    Vector<DemonEnemy*> m_enemiesInLevel;//记录了所有添加到m_level中的DemonEnemy;
-    
+public:
+    //静态消息队列
+    static MessageQueue* s_messageQ;
 };
 
 #endif /* defined(__DemonElimate__PlayLayer__) */

@@ -53,6 +53,14 @@ GameManager::GameManager()
     {
         m_unlockSkillNo.push_back(i);//初始化解锁3,4,5三个技能
     }
+    
+    for (uint i = 0; i < 6; i++)
+    {
+        spSel[i] = false;
+    }
+    
+    isGameOver = false;
+    isWin = false;
 }
 
 GameManager::~GameManager()
@@ -239,4 +247,83 @@ void GameManager::setSkillLevel(int fruitType, int level)
     char buf[1024];
     sprintf(buf, "skill%d_level",fruitType);
     UserDefault::getInstance()->setIntegerForKey(buf, level);
+}
+
+//---------------------------------------战斗系统-------------------------------------------
+string GameManager::getMagicName(MagicId id)
+{
+    rapidjson::Document doc;//定义文件结构
+    string str = FileUtils::getInstance()->getStringFromFile(s_spMagJson);//从文件读取字符串存入str
+    doc.Parse<rapidjson::kParseDefaultFlags>(str.c_str());//解析
+    rapidjson::Value &val =doc[(rapidjson::SizeType)id];//数组中的id-1个
+    std::string name = val["name"].GetString();//名字
+    return name;
+}
+
+int GameManager::getMagicNum(MagicId id)
+{
+    rapidjson::Document doc;
+    string str = FileUtils::getInstance()->getStringFromFile(s_spMagJson);
+    doc.Parse<0>(str.c_str());
+    rapidjson::Value &val = doc[id];
+    int count = val["count"].GetInt();
+    return count;
+}
+
+string GameManager::getSpriteName(SpriteId id)
+{
+    std::string name ;
+    rapidjson::Document doc;
+    std::string str = FileUtils::getInstance()->getStringFromFile(s_spConfJson);
+    doc.Parse<0>(str.c_str());
+    rapidjson::Value &val = doc[id];
+    if (val.HasMember("name"))
+    {
+        name = val["name"].GetString();
+    }
+    return name;
+}
+
+std::string GameManager::getStateName(SpriteId id,SpriteState state)
+{
+    std::string str = GameManager::getInstance()->getSpriteName(id);
+    
+    switch (state)
+    {
+        case SPRITESTATE_IDLE:
+            str += "_run_%03d.png";
+            break;
+        case SPRITESTATE_RUN:
+            str += "_run_%03d.png";
+            break;
+        case SPRITESTATE_ATTACK:
+            str += "_attack_%03d.png";
+            break;
+        case SPRITESTATE_HURT:
+            str += "_run_%03d.png";
+            break;
+        case SPRITESTATE_DEAD:
+            str += "_dead_%03d.png";
+            break;
+        default:
+            break;
+    }
+    return str;
+}
+
+Animate* GameManager::setAnimate(const char* frameName, int frameCount, int fps, bool restore,int times)
+{
+    using namespace cocos2d;
+    Vector<SpriteFrame*> frames;
+    
+    for (int i = 1; i <= frameCount; i++)
+    {
+        const char* imgName = String::createWithFormat(frameName, i)->getCString();
+        SpriteFrame* frame = SpriteFrameCache::getInstance()->getSpriteFrameByName(imgName);
+        frames.pushBack(frame);
+    }
+    auto animation = Animation::createWithSpriteFrames(frames, 1.0f/fps, times);
+    animation->setRestoreOriginalFrame(restore);
+    auto animate = Animate::create(animation);
+    return animate;
 }

@@ -14,6 +14,8 @@
 #include <vector>
 #include <string>
 #include "../Header.h"
+#include "../Configer.h"
+#include "json/document.h"
 using namespace std;
 USING_NS_CC;
 
@@ -69,5 +71,21 @@ private:
     
     //已经解锁的技能 = 已解锁的果实种类 + 后来解锁的大招
     vector<int> m_unlockSkillNo;
+public:
+//---------------------------------------战斗系统-------------------------------------------
+    Animate* setAnimate(const char* frameName, int frameCount, int fps, bool restore = true,int times =1);//创建动画，帧名、帧数、帧数（这里感觉应该改成帧用时）、是否重置为第一张图片，重复次数
+    
+    std::string getMagicName(MagicId id);//根据魔法的id获取魔法的名字
+    int getMagicNum(MagicId id);//获取魔法的图片数
+    
+    std::string getSpriteName(SpriteId id);//获取人物的名字
+    std::string getStateName(SpriteId id, SpriteState state);//获取状态的名字
+    std::string getAttackName(MagicId magicId);//获取攻击动作的名字
+    
+    int heroNum;//英雄数
+    int enemyNum;//敌人数
+    bool spSel[6];//？
+    bool isWin;//是否胜利
+    bool isGameOver;//是否游戏结束
 };
 #endif /* defined(__DemonElimination__GameManager__) */

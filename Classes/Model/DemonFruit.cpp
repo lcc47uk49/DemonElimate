@@ -7,7 +7,7 @@
 //
 
 #include "DemonFruit.h"
-
+#include "GameTools.h"
 DemonFruit::DemonFruit()
 {
     m_row = -1;
@@ -83,13 +83,33 @@ void DemonFruit::Hints()
 
 void DemonFruit::explode()
 {
-    float time = 0.2;
+    //爆破效果加载父节点上
+    
+    //爆破效果 --圆圈
     Point pos = this->getPosition();
-    int index = this->getFruitType();
+    auto circleSprite = Sprite::createWithSpriteFrameName("circle.png");
+    this->getParent()->addChild(circleSprite,10);
+    circleSprite->setPosition(pos);
+    circleSprite->setScale(0);
+    circleSprite->runAction(Sequence::create(ScaleTo::create(0.4,1.0),
+                                             CallFunc::create(CC_CALLBACK_0(Sprite::removeFromParent,circleSprite)), NULL));
+    
+    //爆破效果 --粒子
+    auto particleStars = ParticleSystemQuad::create(GameTools::getName("StarPlist"));
+    particleStars->setAutoRemoveOnFinish(true);
+    particleStars->setBlendAdditive(false);
+    particleStars->setPosition(pos);
+    particleStars->setScale(0.8);
+    this->getParent()->addChild(particleStars, 10);
+    
+    
+    float time = 0.2;
     this->runAction(Sequence::create(DelayTime::create(m_swapDelayTime),
                                      ScaleTo::create(time, 0.0),
                                      CallFuncN::create(CC_CALLBACK_1(DemonFruit::actionEndCallBack, this)),
                                      NULL));
+    
+    
 }
 
 void DemonFruit::actionEndCallBack(Node* node)

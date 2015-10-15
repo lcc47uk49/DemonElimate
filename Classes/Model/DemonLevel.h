@@ -14,8 +14,6 @@
 #include "DemonTile.h"
 #include "DemonSwap.h"
 #include "DemonChain.h"
-#include "DemonTree.h"
-#include "DemonEnemy.h"
 #include "../Header.h"
 #include "json/rapidjson.h"
 #include "json/document.h"
@@ -35,7 +33,6 @@ private:
     bool loadJson(const string& strName);//读取json文件
     bool initWithFile(const string& strName);//根据文件初始化关卡
     void initTileMatrix();//初始化m_tileMatrix
-    void initEnemies();//初始化敌人向量 m_enemies
     void initIMatrix();//初始化m_iMatrix
     void initFruitMatrix();//初始化m_fruitMatrix
 public:
@@ -93,9 +90,7 @@ public:
     //蒙版
     Node* m_stencil;//将所有地图节点加入模板节点
     ClippingNode* m_clippingNode;//使用模板节点创建
-    
-    DemonTree* m_tree;//大树
-    Vector<DemonEnemy*> m_enemies;//敌人的集合
+  
 };
 
 #endif /* defined(__DemonElimate__DemonLevel__) */

@@ -19,6 +19,12 @@ class GameTools
 {
 public:
     static GameTools* getInstance();
+    // 获取系统时间，毫秒，比如返回5100即5.100秒
+    static double getCurrentTime();
+    //获得文件名
+    static string getName(string str);
+    
+    
     GameTools();
     ~GameTools();
     
@@ -46,9 +52,6 @@ public:
      *  @return 文件名
      */
     std::string createBufFormat(const char *fmt, ...);
-    
-    // 获取系统时间，毫秒，比如返回5100即5.100秒
-    static double getCurrentTime();
     
     bool isContain(vector<Point> &v, Point p);//判断是否包含的函数
     

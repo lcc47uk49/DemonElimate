@@ -24,7 +24,7 @@ public:
     // Note: To support different types of tiles, you can add properties here that
     // indicate how this tile should behave. For example, if a cookie is matched
     // that sits on a jelly tile, you'd set isJelly to NO to make it a normal tile.
-    // for example      BOOL isJelly;
+    // for example     @property (assign, nonatomic) BOOL isJelly;
 };
 
 #endif /* defined(__DemonElimate__DemonTile__) */

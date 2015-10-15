@@ -1,6 +1,5 @@
 #include "AppDelegate.h"
-#include "HelloWorldScene.h"
-#include "View/PlayLayer.h"
+#include "View/LoadingScene.h"
 using namespace std;
 USING_NS_CC;
 
@@ -48,7 +47,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     
-    //添加搜索路径
+    //添加搜索路径 --也可以直接FileUtils::getInstance()->addSearchPath("DemonFruit");,但一定要在创建场景之前！！
     vector<string> searchPaths = FileUtils::getInstance()->getSearchPaths();
     searchPaths.insert(searchPaths.begin(), "DemonFruit");
     searchPaths.insert(searchPaths.begin(), "DemonEnemy");
@@ -59,15 +58,33 @@ bool AppDelegate::applicationDidFinishLaunching() {
     searchPaths.insert(searchPaths.begin(), "Tile");
     searchPaths.insert(searchPaths.begin(), "fonts");
     searchPaths.insert(searchPaths.begin(),"Items");
-    FileUtils::getInstance()->setSearchPaths(searchPaths);
+    searchPaths.insert(searchPaths.begin(),"Bullet");
+    searchPaths.insert(searchPaths.begin(),"json");
+    searchPaths.insert(searchPaths.begin(),"panel");
+    searchPaths.insert(searchPaths.begin(),"res");
+    searchPaths.insert(searchPaths.begin(),"res/StageSelect");
+    searchPaths.insert(searchPaths.begin(),"res/Default");
     
-    //加载资源
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonFruit.plist");
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonEnemy.plist");
-    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Items02-hd.plist");
+    FileUtils::getInstance()->setSearchPaths(searchPaths);
+    FileUtils::getInstance()->addSearchPath("plist");
+    FileUtils::getInstance()->addSearchPath("Image");
+    
+    
+//    //加载资源
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonFruit.plist");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("DemonEnemy.plist");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Items02-hd.plist");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster1.plist","monster1.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster2.plist","monster2.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster3.plist","monster3.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster4.plist","monster4.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster5.plist","monster5.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster6.plist","monster6.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster7.plist","monster7.png");
+//    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("monster8.plist","monster8.png");
 //    SpriteFrameCache::getInstance()->addSpriteFramesWithFile("stars.plist");
     // create a scene. it's an autorelease object
-    auto scene = PlayLayer::createScene();
+    auto scene = LoadingScene::createScene();
 
     // run
     director->runWithScene(scene);

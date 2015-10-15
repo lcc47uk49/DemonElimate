@@ -12,6 +12,9 @@
 //singleton stuff
 static  GameTools* s_SharedGameTools = nullptr;
 
+//保存了strPath中的文件名--这样在plist中改文件名，不需要重新编译了，并且改一次，程序中的所有相关都更改了
+static ValueMap m_vmPaths = FileUtils::getInstance()->getValueMapFromFile("plist/strPath.plist");
+
 GameTools* GameTools::getInstance()
 {
     if ( !s_SharedGameTools)
@@ -112,3 +115,9 @@ bool GameTools::isContain(vector<Point> &v, Point p)
     }
     return false;
 }
+
+string GameTools::getName(string str)
+{
+    return m_vmPaths[str].asString();
+}
+

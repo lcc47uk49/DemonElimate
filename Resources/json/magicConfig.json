@@ -1,0 +1,56 @@
+[
+    {
+        "id": 0,
+        "name": "bulletFire1",
+        "count": 4,
+        "attack":10
+    },
+    {
+        "id": 1,
+        "name": "bulletFire2",
+        "count": 4,
+        "attack":12
+    },
+    {
+        "id": 2,
+        "name": "bulletIce1",
+        "count": 5,
+        "attack":15
+    },
+    {
+        "id": 3,
+        "name": "bulletIce2",
+        "count": 4,
+        "attack":14
+    },
+    {
+        "id": 4,
+        "name": "bulletIce3",
+        "count": 3,
+        "attack":10
+    },
+     {
+     "id": 5,
+     "name": "bigMagicFire",
+     "count": 14,
+     "attack":35
+     },
+     {
+     "id": 6,
+     "name": "bigMagicIce",
+     "count": 8,
+     "attack":30
+     },
+     {
+     "id": 7,
+     "name": "bigMagicLight",
+     "count": 8,
+     "attack":30
+     },
+     {
+     "id": 8,
+     "name": "explodetreat_",
+     "count": 27,
+     "attack":75
+     }
+]
